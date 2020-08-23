@@ -1,32 +1,44 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
-    <router-view/>
+
+    <el-container>
+      <el-main width="100%" id="main">
+
+        <from-components></from-components>
+
+      </el-main>
+
+      <el-aside width="30%" id="aside">
+
+      </el-aside>
+
+    </el-container>
+
   </div>
 </template>
 
-<style lang="scss">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
+<script>
+  import fromComponents from "./components/fromComponents";
 
-#nav {
-  padding: 30px;
-
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
+  export default {
+    name: 'app',
+    components: {
+      fromComponents
     }
   }
-}
+</script>
+
+<style scoped>
+  #main {
+    height: 100%;
+    background: white;
+    margin: 20px 20px 20px 20px;
+  }
+
+  #aside {
+    height: 100%;
+    background: white;
+    margin: 20px 20px 20px 0;
+    padding: 10px 10px;
+  }
 </style>
