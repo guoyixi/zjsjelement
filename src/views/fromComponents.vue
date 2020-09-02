@@ -21,10 +21,10 @@
         <p style="text-align: left">
           <el-row type="flex" justify="space-between">
             <el-col>
-              签证编号：{{fromChangeVisa.fromId ?'Q' + fromChangeVisa.fromId:''}}
+              签证编号：{{fromChangeVisa.fromType==0?'Q':'B' + fromChangeVisa.fromId}}
             </el-col>
             <el-col>
-              工程名称：{{fromChangeVisa.fromProjectName ?fromChangeVisa.fromProjectName:''}}
+              工程名称：{{fromChangeVisa.fromProjectName}}
             </el-col>
           </el-row>
         </p>
@@ -36,21 +36,21 @@
             </td>
             <td width="160" valign="middle">
 
-              <el-input v-model.trim="fromChangeVisa.fromPosition" placeholder="请填写分部分项位置" ></el-input>
+              <el-input v-model.trim="fromChangeVisa.fromPosition" placeholder="请填写分部分项位置"></el-input>
 
             </td>
-            <td width="110" valign="middle" >
+            <td width="110" valign="middle">
               施工时间
 
             </td>
-            <td width="160" valign="middle" >
+            <td width="160" valign="middle">
               <el-date-picker type="date" placeholder="请选择施工时间" style="width: 190px"
                               v-model.trim="fromChangeVisa.fromConstructionDate"
                               format="yyyy 年 MM 月 dd 日"
                               value-format="yyyy-MM-dd"
                               :clearable="false"></el-date-picker>
             </td>
-            <td width="110" valign="middle" placeholder="请填写费用" >
+            <td width="110" valign="middle" placeholder="请填写费用">
               建设单位
 
             </td>
@@ -118,7 +118,6 @@
       </div>
     </el-form>
 
-    {{fFlowId+'------'+fFlowModelId}}
   </div>
 </template>
 
@@ -133,7 +132,7 @@
     data() {
       return {
         fromChangeVisa: {
-          fromId:null,
+          fromId: null,
           fromType: null,
           fromStatus: null,
           fromProjectName: null,
@@ -141,31 +140,31 @@
           fromBuild: null,
           fromConstructionDate: new Date(),
           fromConstruction: null,
-          fromCost: 0,
+          fromCost: null,
           fromDays: null,
           fromReason: null,
           fromContent: null,
           fromSponsor: null,
           fromProjectId: null,
-          fromFlowId:null,
-          fromFlowModeId:null,
+          fromFlowId: null,
+          fromFlowModeId: null,
         }
       };
     },
-    props:{
-      fFlowId:{
-        type:Number,
+    props: {
+      fFlowId: {
+        type: Number,
       },
-      fFlowModelId:{
-        type:Number,
+      fFlowModelId: {
+        type: Number,
       }
     },
-    watch:{
-      fFlowId(newVal,oldVal) {
+    watch: {
+      fFlowId(newVal, oldVal) {
         console.log(newVal);
         this.fromChangeVisa.fromFlowId = newVal;
       },
-      fFlowModelId(newVal,oldVal){
+      fFlowModelId(newVal, oldVal) {
         console.log(newVal);
         this.fromChangeVisa.fromFlowModeId = newVal;
       }
@@ -203,20 +202,34 @@
           return false;
         }
 
+        Object.defineProperty(this.fromChangeVisa, "fromStatus", "ACTION")
         requestFromCommit({
-          url:"save",
-          method:"post",
-
+          url: "save",
+          method: "post",
+          data: this.fromChangeVisa
         })
 
       }
     },
     created() {
 
-      //获取路径上的项目ID
-      this.fromChangeVisa.fromProjectId = getUrlParam('fromProjectId');
       //获取路径上的表单ID
-      this.fromChangeVisa.fromId = getUrlParam('fromId');
+      let fromId = getUrlParam('fromId');
+
+      requestFromInit({
+        url: 'fromInitialize',
+        method: "get",
+        params: fromId,
+      }).then(res => {
+
+        this.fromChangeVisa = res;
+
+        this.$store.commit({type: "updateFormFlag", fromX: {formIdX: res.fromId, formStatusX: res.fromStatus}});
+
+      }, error => {
+        console.log(error);
+      })
+
 
     },
     computed: {},

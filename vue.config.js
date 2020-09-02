@@ -13,6 +13,6 @@ module.exports = {
   devServer: {
     proxy: 'http://localhost:8980'
   },
-  // publicPath:"${ctxStatic}/staticFile/from"
+  publicPath:""
 
 }

@@ -10,8 +10,13 @@ Vue.use(Vuex)
 
 // 2.创建对象
 const state = {
-  fromId:0,
+  fromX:{
+    formIdX:0,
+    formStatusX:"WAIT"
+  }
 }
+
+
 const store = new Vuex.Store({
   state,
   mutations,

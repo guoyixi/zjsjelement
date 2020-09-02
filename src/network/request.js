@@ -88,7 +88,6 @@ export function requestFromInit(config) {
   // 1.创建axios的实例
   const instance = axios.create({
     baseURL: '/zjsj/a/from/zjsjProjectFrom',
-    timeout: 5000,
     withCredentials:true,
 
   })
