@@ -22,9 +22,9 @@
                       title="请根据单位选择人员"
                       width="400"
                       trigger="click">
-                <el-cascader-panel size="medium"
+                <el-cascader-panel size="medium" ref="cascaderComponents"
                                    :options="constructionAndEmployeeList"
-                                   :props="{expandTrigger:'hover',value:'label'}"
+                                   :props="{expandTrigger:'hover'}"
                                    @change="((data)=>{changeConstructionAndEmployee(data,index)})">
                 </el-cascader-panel>
 
@@ -85,19 +85,20 @@
 
         approvalProcessConstructionId: 1, //流程节点ID
 
-        // approvalProcessConstructionList: [{}],//流程节点的集合
-        approvalProcessConstructionList: [
-          {id: 1, constructionName: "建设单位", userName: "谭晶"},
-          {id: 2, constructionName: "监理单位", userName: "Jacqueline"},
-          {id: 3, constructionName: "施工单位", userName: "花花"},
-          {id: 4, constructionName: "咨询单位", userName: "GEM"},
-        ],
+        approvalProcessConstructionList: [{}],//流程节点的集合
+        // approvalProcessConstructionList: [
+        //   {id: 1, constructionName: "建设单位", userName: "谭晶"},
+        //   {id: 2, constructionName: "监理单位", userName: "Jacqueline"},
+        //   {id: 3, constructionName: "施工单位", userName: "花花"},
+        //   {id: 4, constructionName: "咨询单位", userName: "GEM"},
+        // ],
 
       }
     },
     methods: {
       // 创建流程节点
       changeConstructionAndEmployee(data, index) {
+        console.log(this.$refs.cascaderComponents[index].getCheckedNodes());
         let constructionName = data[0];
         let userName = data[1];
         this.approvalProcessConstructionList.splice(index, 1, {
