@@ -71,7 +71,7 @@
 
 <script>
 
-  import {requestConstructionAndEmployee} from "network/request";
+  import {requestConstructionAndEmployeeList} from "network/request";
   import {requestConstructionAndEmployeeFlowList} from "network/request";
 
 
@@ -133,7 +133,7 @@
 
         //创建流程
         requestConstructionAndEmployeeFlowList({
-          url: 'ConstructionAndEmployeeFlowList',
+          url: 'commitConstructionAndEmployeeFlowList',
           method: "post",
           data: this.approvalProcessConstructionList,
           params:{
@@ -174,11 +174,13 @@
     created() {
 
       //获取路径上的表单ID
-      let fromId = getUrlParam('fromId');
-      // let fromId = 60;
+      // let fromId = getUrlParam('fromId');
+      let fromId = 60;
 
-      requestConstructionAndEmployee({
-        url: 'ConstructionAndEmployee',
+      console.log(fromId);
+
+      requestConstructionAndEmployeeList({
+        url: 'getConstructionAndEmployeeList',
         method:"get",
         params:{
           fromId:fromId

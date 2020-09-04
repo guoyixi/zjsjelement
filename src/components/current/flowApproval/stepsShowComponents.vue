@@ -142,13 +142,13 @@
 
       let formId = this.$store.getters.getFormX;
 
-      // requestFlowInit({
-      //   url:'FlowList',
-      //   method:"get",
-      //   params:{
-      //     fromId:formId
-      //   }
-      // })
+      requestFlowInit({
+        url:'getFlowList',
+        method:"get",
+        params:{
+          fromId:formId
+        }
+      })
 
     },
     filters: {

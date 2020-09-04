@@ -220,24 +220,31 @@
     created() {
 
       //获取路径上的表单ID
-      let fromId = getUrlParam('fromId');
-      // let fromId = 60;
+      // let fromId = getUrlParam('fromId');
+      let fromId = 60;
 
       //请求数据
       requestFromInit({
-        url: 'fromInitialize',
+        url: 'init',
         method: "get",
         params: {fromId: fromId},
       }).then(res => {
 
-        //存储FORM
-        this.fromChangeVisa = res;
+        if(res.result){
 
-        if (res.fromStatus === "WAIT") {
-          this.disable = false
-        } else {
-          this.disable = true
-          this.$emit("steps-flag", false);
+          //获取FORM
+          const FROMOBJ = res.data;
+
+          //存储FORM
+          this.fromChangeVisa = FROMOBJ;
+
+          if (FROMOBJ.fromStatus === "WAIT") {
+            this.disable = false
+          } else {
+            this.disable = true
+            this.$emit("steps-flag", false);
+          }
+
         }
 
       }, error => {

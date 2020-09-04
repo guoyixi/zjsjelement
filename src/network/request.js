@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 
-export function requestConstructionAndEmployee(config) {
+export function requestConstructionAndEmployeeList(config) {
   // 1.创建axios的实例
   const instance = axios.create({
     baseURL: '/zjsj/a/from/zjsjProjectFrom',
