@@ -13,7 +13,7 @@
       </el-col>
     </el-row>
 
-    <el-form :model="fromChangeVisa" ref="fromChangeVisa">
+    <el-form :model="fromChangeVisa" ref="fromChangeVisa" :disabled="disable">
       <div id="preview">
         <p style="text-align: center;font-family:宋体;font-size: 19px;font-weight: bolder">
           工程签证单
@@ -21,7 +21,7 @@
         <p style="text-align: left">
           <el-row type="flex" justify="space-between">
             <el-col>
-              签证编号：{{fromChangeVisa.fromType==0?'Q':'B' + fromChangeVisa.fromId}}
+              签证编号：{{(fromChangeVisa.fromType==0?'Q':'B') + fromChangeVisa.fromId}}
             </el-col>
             <el-col>
               工程名称：{{fromChangeVisa.fromProjectName}}
@@ -67,7 +67,7 @@
             </td>
             <td width="160" valign="middle" id="td2">
 
-              <el-input v-model.trim.number="fromChangeVisa.fromDays" placeholder="请填写工期" type="number"></el-input>
+              <el-input v-model.trim.number="fromChangeVisa.fromDays" placeholder="请填写工期" type="number" max="100000" min="1"></el-input>
 
             </td>
 
@@ -85,7 +85,7 @@
             </td>
             <td width="160" valign="middle">
 
-              <el-input v-model.number="fromChangeVisa.fromCost" placeholder="请填写费用" type="number"></el-input>
+              <el-input v-model.number="fromChangeVisa.fromCost" placeholder="请填写费用" type="number"  max="100000000" min="0"></el-input>
 
             </td>
           </tr>
@@ -125,6 +125,7 @@
 
   import {requestFromInit} from "network/request";
   import {requestFromCommit} from "network/request";
+  import qs from "qs";
 
 
   export default {
@@ -134,7 +135,7 @@
         fromChangeVisa: {
           fromId: null,
           fromType: null,
-          fromStatus: null,
+          fromStatus: 'ACTION',
           fromProjectName: null,
           fromPosition: null,
           fromBuild: null,
@@ -148,26 +149,9 @@
           fromProjectId: null,
           fromFlowId: null,
           fromFlowModeId: null,
-        }
+        },
+        disable: false
       };
-    },
-    props: {
-      fFlowId: {
-        type: Number,
-      },
-      fFlowModelId: {
-        type: Number,
-      }
-    },
-    watch: {
-      fFlowId(newVal, oldVal) {
-        console.log(newVal);
-        this.fromChangeVisa.fromFlowId = newVal;
-      },
-      fFlowModelId(newVal, oldVal) {
-        console.log(newVal);
-        this.fromChangeVisa.fromFlowModeId = newVal;
-      }
     },
     methods: {
       submitForm() {
@@ -202,12 +186,34 @@
           return false;
         }
 
-        Object.defineProperty(this.fromChangeVisa, "fromStatus", "ACTION")
+        //向 fromChangeVisa 追加 fromStatus:ACTION
+        const FROMOBJ = Object.defineProperty(this.fromChangeVisa, "fromStatus", {
+          value: "ACTION"
+        })
+
+        //提交表单
         requestFromCommit({
           url: "save",
           method: "post",
-          data: this.fromChangeVisa
-        })
+          data: FROMOBJ,
+          transformRequest: [function (data) {
+            data = qs.stringify(data);
+            return data;
+          }],
+        }).then(
+            res => {
+
+              if(res.result){
+                //禁用表单
+                this.disable = true
+                this.$emit("steps-flag", false);
+              }
+            },
+            error => {
+              console.log(error);
+            }
+        )
+
 
       }
     },
@@ -215,21 +221,31 @@
 
       //获取路径上的表单ID
       let fromId = getUrlParam('fromId');
+      // let fromId = 60;
 
+      //请求数据
       requestFromInit({
         url: 'fromInitialize',
         method: "get",
-        params: fromId,
+        params: {fromId: fromId},
       }).then(res => {
 
+        //存储FORM
         this.fromChangeVisa = res;
 
-        this.$store.commit({type: "updateFormFlag", fromX: {formIdX: res.fromId, formStatusX: res.fromStatus}});
+        if (res.fromStatus === "WAIT") {
+          this.disable = false
+        } else {
+          this.disable = true
+          this.$emit("steps-flag", false);
+        }
 
       }, error => {
         console.log(error);
-      })
+      });
 
+
+      this.$store.commit({type: "updateFormX", fromId});
 
     },
     computed: {},

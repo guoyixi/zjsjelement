@@ -129,20 +129,22 @@
           return false;
         }
 
+        let formId = this.$store.getters.getFormX;
 
+        //创建流程
         requestConstructionAndEmployeeFlowList({
           url: 'ConstructionAndEmployeeFlowList',
           method: "post",
           data: this.approvalProcessConstructionList,
+          params:{
+            fromId:formId,
+          }
         }).then(resFlow => {
 
-          const flowIds = {
-            fromFlowId: Number(resFlow.flowId),
-            fromFlowModelId: Number(resFlow.modelId),
-            // flowNodeList:this.approvalProcessConstructionList,
-          };
-
-          this.$emit('flow-ids-steps', flowIds)
+          if(resFlow.result){
+            //提交表单
+            this.$root.$children[0].$refs.fromComponents.submitForm();
+          }
 
         }).catch(e => {
           console.log(e);
@@ -170,14 +172,30 @@
 
     },
     created() {
+
+      //获取路径上的表单ID
+      let fromId = getUrlParam('fromId');
+      // let fromId = 60;
+
       requestConstructionAndEmployee({
         url: 'ConstructionAndEmployee',
+        method:"get",
+        params:{
+          fromId:fromId
+        }
       }).then(request => {
         this.constructionAndEmployeeList = request;
       }).catch(e => {
         console.log(e);
       })
     }
+  }
+
+  function getUrlParam(name) {
+    var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+    var r = window.location.search.substr(1).match(reg);
+    if (r != null) return unescape(r[2]);
+    return null;
   }
 </script>
 

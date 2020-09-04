@@ -4,13 +4,13 @@
     <el-container>
       <el-main width="930px" id="main">
 
-        <from-components ref="fromComponents" :f-flow-id="flowId" :f-flow-model-id="flowModeId"></from-components>
+        <from-components @steps-flag="stepFlag => {stepsFlag=stepFlag}" ref="fromComponents"  ></from-components>
 
       </el-main>
 
       <el-aside width="490px" id="aside">
 
-        <tabs-components @flow-ids-tabs="commitForm"></tabs-components>
+        <tabs-components :t-steps-flag="stepsFlag"></tabs-components>
 
       </el-aside>
 
@@ -27,15 +27,8 @@
     name: 'app',
     data(){
       return{
-        flowId:null,
-        flowModeId:null,
-      }
-    },
-    methods:{
-      commitForm(flowIds){
-        this.flowId = flowIds.fromFlowId;
-        this.flowModeId = flowIds.fromFlowModelId;
-        this.$refs.fromComponents.submitForm();
+        //默认显示操作页
+        stepsFlag:true,
       }
     },
     components: {

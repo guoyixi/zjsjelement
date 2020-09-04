@@ -11,7 +11,7 @@
             :before-upload="beforeUploadFile">
       <i slot="default" class="el-icon-plus"></i>
       <div slot="file" slot-scope="{file}">
-        <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" >
+        <img class="el-upload-list__item-thumbnail" :src="file.url" alt="">
         <span class="el-upload-list__item-actions">
 
                                 <span class="el-upload-list__item-preview" @click="handlePreview(file)">
@@ -28,13 +28,12 @@
                                       @click="handleRemove(file)">
                                     <i class="el-icon-delete"></i>
                                 </span>
-
-                            </span>
+        </span>
       </div>
     </el-upload>
     <el-dialog :visible.sync="dialogVisible">
-      <img width="100%" :src="dialogImageUrl" alt="" >
-    </el-dialog >
+      <img width="100%" :src="dialogImageUrl" alt="">
+    </el-dialog>
 
   </div>
 </template>
@@ -47,6 +46,8 @@
         dialogImageUrl: '',
         dialogVisible: false,
         disabled: false,
+
+        fileData: {},
         fileList: [],
       }
     },
@@ -69,9 +70,9 @@
           offset: 40,
         });
       },
-      beforeUploadFile(file){
+      beforeUploadFile(file) {
 
-        const isIMAGE = file.type === 'image/jpeg'||'image/gif'||'image/png';
+        const isIMAGE = file.type === 'image/jpeg' || 'image/gif' || 'image/png';
         const isLt1M = file.size / 1024 / 1024 < 1;
 
         if (!isIMAGE) {

@@ -12,7 +12,7 @@ Vue.use(Vuex)
 const state = {
   fromX:{
     formIdX:0,
-    formStatusX:"WAIT"
+    formStatusX:"WAIT",
   }
 }
 

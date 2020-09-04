@@ -69,6 +69,8 @@
 
 <script>
 
+  import {requestFlowInit} from "network/request";
+
   export default {
     name: "stepsShowComponents",
     data() {
@@ -135,6 +137,19 @@
       terminationApproval() {
 
       }
+    },
+    created() {
+
+      let formId = this.$store.getters.getFormX;
+
+      // requestFlowInit({
+      //   url:'FlowList',
+      //   method:"get",
+      //   params:{
+      //     fromId:formId
+      //   }
+      // })
+
     },
     filters: {
     }
