@@ -130,6 +130,16 @@
           return false;
         }
 
+
+
+        const loading = this.$loading({
+          lock: true,
+          text: 'Loading',
+          spinner: 'el-icon-loading',
+          background: 'rgba(0, 0, 0, 0.7)'
+        });
+
+
         let formId = this.$store.getters.getFormX;
 
         //创建流程
@@ -143,12 +153,14 @@
         }).then(resFlow => {
 
           if(resFlow.result){
-            //提交表单
+            /*提交表单*/
             this.$root.$children[0].$refs.fromComponents.submitForm();
           }
 
         }).catch(e => {
           console.log(e);
+        }).finally(e => {
+          loading.close();
         })
 
 
@@ -177,8 +189,6 @@
       //获取路径上的表单ID
       // let fromId = getUrlParam('fromId');
       let fromId = 60;
-
-      console.log(fromId);
 
       requestConstructionAndEmployeeList({
         url: 'getConstructionAndEmployeeList',
