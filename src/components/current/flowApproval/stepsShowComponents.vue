@@ -173,6 +173,7 @@
             data: {
               id: id,
               nodeOpinion: nodeOpinion,
+              nodeDate:new Date(),
             },
             params: {
               fromId: this.$store.getters.getFormObject.fromId,
@@ -190,12 +191,13 @@
 
       },
       init() {
+        const id = this.$store.getters.getFormObject.fromId;
         requestNodeInit({
           url: 'getNodeList',
           method: "get",
           params: {
-            fromId: this.$store.getters.getFormObject.fromId,
-            nodeFromId: this.$store.getters.getFormObject.fromId
+            fromId:id,
+            nodeFromId: id
           }
         }).then(res => {
 

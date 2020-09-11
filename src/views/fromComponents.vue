@@ -92,12 +92,34 @@
             </td>
           </tr>
 
+          <tr>
+            <td valign="top" colspan="6">
+
+                <span style="margin:0;margin-top: 5px;text-align:center;font-family:宋体;color:rgb(164,164,164);font-size:13px">
+                  签证原因</span>
+              <el-input type="textarea" v-model.trim="fromChangeVisa.fromReason" autosize resize="none"
+                        style="min-height: 40px"></el-input>
+
+            </td>
+          </tr>
+
+          <tr>
+            <td valign="top" colspan="6">
+
+                <span style="margin:0;margin-top: 5px;text-align:center;font-family:宋体;color:rgb(164,164,164);font-size:13px">
+                  签证内容</span>
+              <el-input type="textarea" v-model.trim="fromChangeVisa.fromContent" autosize resize="none"
+                        style="min-height: 40px"></el-input>
+
+            </td>
+          </tr>
+
           </tbody>
         </table>
 
         <table id="table2" style="border-collapse:collapse;">
 
-          <tr style="height:124px">
+          <tr v-for="(item,index) in opinionList" style="height:124px">
             <td width="426" valign="top" colspan="3" height="151">
               <p>
                 某单位意见
@@ -132,40 +154,7 @@
 
           </tr>
 
-          <tr style="height:124px">
-            <td width="426" valign="top" colspan="3" height="151">
-              <p>
-                某单位意见
-              </p>
 
-              <div>
-                <p>
-
-                  内容
-
-                </p>
-              </div>
-
-              
-            </td>
-
-            <td width="426" valign="top" colspan="3" height="151" >
-              <p>
-                某单位意见
-              </p>
-
-              <div>
-                <p>
-
-                  内容
-
-                </p>
-              </div>
-
-              
-            </td>
-
-          </tr>
 
 
         </table>
@@ -177,7 +166,7 @@
 
 <script>
   import qs from "qs";
-  import {requestFromCommit, requestFromInit} from "network/request";
+  import {requestFromCommit, requestNodeInit} from "network/request";
 
   export default {
     name: "fromComponents",
@@ -201,6 +190,7 @@
           fromFlowId: null,
           fromFlowModeId: null,
         },
+        opinionList:[{}]
       }
     },
     methods: {
@@ -258,6 +248,29 @@
       },
       loadTable(){
 
+        const formObject = this.$store.getters.getFormObject;
+
+        if(formObject.fromStatus!=="WAIT"){
+          requestNodeInit({
+            url: 'loadFlowList',
+            method: "get",
+            params: {
+              fromId:formObject.fromId,
+              nodeFromId: formObject.fromId
+            }
+          }).then(res => {
+
+            // this.flowList = res.flowList;
+            // this.currentUser = res.currentUser;
+            // this.currentNode = res.currentNode;
+
+          }, error => {
+            console.log(error);
+          })
+        }
+
+
+
       },
       init(){
         this.fromChangeVisa = this.$store.getters.getFormObject;
@@ -270,6 +283,7 @@
     },
     created() {
       this.init();
+      this.loadTable();
     },
   }
 
