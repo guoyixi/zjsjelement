@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div >
     <!--操作-->
     <el-steps :active="approvalProcessConstructionList.length"
               process-status="process"
@@ -8,7 +8,7 @@
               :space="80">
 
       <el-step v-for="(item,index) in approvalProcessConstructionList"
-               :key="item.id">
+               :key="item.nodeId">
 
         <template slot="icon">
           <strong>{{index+1}}</strong>
@@ -16,24 +16,26 @@
 
         <template slot="title">
           <el-row type="flex" justify="start">
+
             <el-col>
               <el-popover
                       placement="bottom"
                       title="请根据单位选择人员"
                       width="400"
                       trigger="click">
+
                 <el-cascader-panel size="medium" ref="cascaderComponents"
                                    :options="constructionAndEmployeeList"
-                                   :props="{expandTrigger:'hover'}"
+                                   :props="{expandTrigger:'hover',emitPath:true}"
                                    @change="((data)=>{changeConstructionAndEmployee(data,index)})">
                 </el-cascader-panel>
 
                 <span slot="reference" style='cursor:pointer'>
-                  <span v-if="typeof(item.constructionName)=='undefined'">
+                  <span v-if="typeof(item.nodeConstructionCode)=='undefined'">
                       <span style='color: #409EFF'>点击选择单位和人员</span>
                   </span>
                   <span v-else>
-                      <span>{{item.constructionName + ' —— ' + item.userName}}</span>
+                      <span>{{item.nodeConstructionName + ' —— ' + item.nodeUserName}}</span>
                   </span>
                 </span>
 
@@ -71,54 +73,58 @@
 
 <script>
 
-  import {requestConstructionAndEmployeeList} from "network/request";
-  import {requestConstructionAndEmployeeFlowList} from "network/request";
+  import {requestConstructionAndEmployeeList, requestFlowCommit} from "network/request";
 
 
   export default {
     name: "stepsOperationComponents",
     data() {
       return {
-        // activeBeforeSteps: 值为流程节点集合的长度, //激活的步骤条
 
         constructionAndEmployeeList: [], //单位和人员的集合
 
         approvalProcessConstructionId: 1, //流程节点ID
 
         approvalProcessConstructionList: [{}],//流程节点的集合
-        // approvalProcessConstructionList: [
-        //   {id: 1, constructionName: "建设单位", userName: "谭晶"},
-        //   {id: 2, constructionName: "监理单位", userName: "Jacqueline"},
-        //   {id: 3, constructionName: "施工单位", userName: "花花"},
-        //   {id: 4, constructionName: "咨询单位", userName: "GEM"},
-        // ],
 
       }
     },
     methods: {
       // 创建流程节点
-      changeConstructionAndEmployee(data, index) {
-        console.log(this.$refs.cascaderComponents[index].getCheckedNodes());
-        let constructionName = data[0];
-        let userName = data[1];
-        this.approvalProcessConstructionList.splice(index, 1, {
-          id: this.approvalProcessConstructionId++,
-          constructionName: constructionName,
-          userName: userName
+      changeConstructionAndEmployee(data,index) {
+
+        let construction = this.constructionAndEmployeeList.find(c => {
+          return c.value === data[0]
         });
+
+        let user = construction.children.find(u => {
+          return u.value === data[1]
+        });
+
+
+        this.approvalProcessConstructionList.splice(index, 1, {
+          nodeId: this.approvalProcessConstructionId++,
+          nodeConstructionCode: construction.value,
+          nodeConstructionName: construction.label,
+          nodeUserCode: user.value,
+          nodeUserName: user.label,
+          nodeFromId: this.$store.getters.getFormObject.fromId,
+        });
+
       },
-      // 提交流程节点 表单 文件上传
+      // 提交流程————提交表单
       commitFlowNodeAndFromAndFile() {
 
-        /*流程节点*/
-        //判断每个流程节点是否不为空
+        /*
+        ————验证节点
+          1、判断每个流程节点是否不为空
+          2、两个数组的长度相等则
+        */
         const ts = this.approvalProcessConstructionList.filter(obj => {
           if (Object.keys(obj).length != 0) {
             return true;
           }
         });
-
-        //两个数组的长度相等则
         if (this.approvalProcessConstructionList.length !== ts.length) {
           this.$message({
             title: '提示',
@@ -130,37 +136,57 @@
           return false;
         }
 
+        /*
+        ————验证表单
+          1、判断每个选项是否为空
+          2、判断工期和费用是否为数字
+          3、判断fromType==0的 签证 单费用 != 0
+          4、判断fromType==1的 变更 单费用 == 0
+        */
+        let message = this.$root.$children[0].$refs.fromComponents.validateForm();
+        console.log(message);
+        if (message != null) {
+          this.$message({
+            title: '提示',
+            message,
+            type: 'error',
+            offset: 40,
+            duration: 2000
+          });
+          return false;
+        }
 
-
+        //加载层
         const loading = this.$loading({
           lock: true,
-          text: 'Loading',
+          text: '审批创建中，请稍后...',
           spinner: 'el-icon-loading',
           background: 'rgba(0, 0, 0, 0.7)'
         });
 
 
-        let formId = this.$store.getters.getFormX;
-
-        //创建流程
-        requestConstructionAndEmployeeFlowList({
+        /*提交流程*/
+        requestFlowCommit({
           url: 'commitConstructionAndEmployeeFlowList',
           method: "post",
           data: this.approvalProcessConstructionList,
-          params:{
-            fromId:formId,
+          params: {
+            fromId: this.$store.getters.getFormObject.fromId,
           }
-        }).then(resFlow => {
+        }).then(res => {
 
-          if(resFlow.result){
-            /*提交表单*/
-            this.$root.$children[0].$refs.fromComponents.submitForm();
-          }
+          /*提交表单*/
+          this.$root.$children[0].$refs.fromComponents.submitForm();
+
+        }).then(res => {
+
+          /*加载流程*/
+
 
         }).catch(e => {
           console.log(e);
         }).finally(e => {
-          loading.close();
+          loading.close();//关闭加载层
         })
 
 
@@ -182,34 +208,30 @@
           this.approvalProcessConstructionList.splice(index, 1)
         }
       },
-
+      //初始化
+      init(){
+        requestConstructionAndEmployeeList({
+          url: 'getConstructionAndEmployeeList',
+          method: "get",
+          params: {
+            fromId: this.$store.getters.getFormObject.fromId,
+          }
+        }).then(res => {
+          if (res.result !== 'login') {
+            this.constructionAndEmployeeList = res.data;
+          }
+        }).catch(e => {
+          console.log(e);
+        })
+      },
     },
+    //初始化单位人员
     created() {
-
-      //获取路径上的表单ID
-      // let fromId = getUrlParam('fromId');
-      let fromId = 60;
-
-      requestConstructionAndEmployeeList({
-        url: 'getConstructionAndEmployeeList',
-        method:"get",
-        params:{
-          fromId:fromId
-        }
-      }).then(request => {
-        this.constructionAndEmployeeList = request;
-      }).catch(e => {
-        console.log(e);
-      })
+      this.init();
     }
   }
 
-  function getUrlParam(name) {
-    var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
-    var r = window.location.search.substr(1).match(reg);
-    if (r != null) return unescape(r[2]);
-    return null;
-  }
+
 </script>
 
 <style scoped>

@@ -1,5 +1,33 @@
 import axios from 'axios'
 
+export function requestFromInit(config) {
+  // 1.创建axios的实例
+  const instance = axios.create({
+    baseURL: '/zjsj/a/from/zjsjProjectFrom',
+    withCredentials: true,
+
+  })
+
+  // 2.1 请求响应
+  instance.interceptors.request.use(config => {
+    return config
+  }, err => {
+    console.log("请求失败：", err);
+  })
+
+  // 2.2.响应拦截
+  instance.interceptors.response.use(res => {
+    if (res.data.result=='login') {
+      throw new Error(res.data.message)
+    }
+    return res.data
+  }, err => {
+    console.log("响应失败：", err);
+  })
+
+  // 3.发送真正的网络请求
+  return instance(config)
+}
 
 export function requestConstructionAndEmployeeList(config) {
   // 1.创建axios的实例
@@ -18,6 +46,9 @@ export function requestConstructionAndEmployeeList(config) {
 
   // 2.2.响应拦截
   instance.interceptors.response.use(res => {
+    if (res.data.result=='login') {
+      throw new Error(res.message)
+    }
     return res.data
   }, err => {
     console.log(err);
@@ -28,7 +59,7 @@ export function requestConstructionAndEmployeeList(config) {
 }
 
 
-export function requestConstructionAndEmployeeFlowList(config) {
+export function requestFlowCommit(config) {
   // 1.创建axios的实例
   const instance = axios.create({
     baseURL: '/zjsj/a/from/zjsjProjectFrom',
@@ -45,6 +76,9 @@ export function requestConstructionAndEmployeeFlowList(config) {
 
   // 2.2 响应拦截
   instance.interceptors.response.use(res => {
+    if (res.data.result=='login') {
+      throw new Error(res.message)
+    }
     return res.data
   }, err => {
     console.log("响应失败：", err);
@@ -54,6 +88,7 @@ export function requestConstructionAndEmployeeFlowList(config) {
   // 3.发送真正的网络请求
   return instance(config)
 }
+
 
 export function requestFromCommit(config) {
   // 1.创建axios的实例
@@ -72,6 +107,9 @@ export function requestFromCommit(config) {
 
   // 2.2.响应拦截
   instance.interceptors.response.use(res => {
+    if (res.data.result=='login') {
+      throw new Error(res.message)
+    }
     return res.data
   }, err => {
     console.log("响应失败：", err);
@@ -81,7 +119,7 @@ export function requestFromCommit(config) {
   return instance(config)
 }
 
-export function requestFromInit(config) {
+export function requestNodeInit(config) {
   // 1.创建axios的实例
   const instance = axios.create({
     baseURL: '/zjsj/a/from/zjsjProjectFrom',
@@ -98,17 +136,19 @@ export function requestFromInit(config) {
 
   // 2.2.响应拦截
   instance.interceptors.response.use(res => {
+    if (res.data.result=='login') {
+      throw new Error(res.message)
+    }
     return res.data
   }, err => {
     console.log("响应失败：", err);
   })
 
-
   // 3.发送真正的网络请求
   return instance(config)
 }
 
-export function requestFlowInit(config) {
+export function requestNodeCommit(config) {
   // 1.创建axios的实例
   const instance = axios.create({
     baseURL: '/zjsj/a/from/zjsjProjectFrom',
@@ -125,11 +165,13 @@ export function requestFlowInit(config) {
 
   // 2.2.响应拦截
   instance.interceptors.response.use(res => {
+    if (res.data.result=='login') {
+      throw new Error(res.message)
+    }
     return res.data
   }, err => {
     console.log("响应失败：", err);
   })
-
 
   // 3.发送真正的网络请求
   return instance(config)

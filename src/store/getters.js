@@ -1,5 +1,5 @@
 export default  {
-  getFormX(state){
-    return state.fromX.formIdX;
+  getFormObject(state){
+    return state.formObject
   }
 }

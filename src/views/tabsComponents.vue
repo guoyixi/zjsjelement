@@ -1,11 +1,12 @@
 <template>
-  <el-tabs v-model="activeTabs" tab-position="top">
+
+  <el-tabs v-model="activeTabs" tab-position="top" >
 
     <!--wait——灰色 / process —— 黑色 / finish —— 蓝色 / error —— 红色 / success —— 绿色 -->
     <el-tab-pane label="审批流程" name="first">
 
-      <steps-operation-components v-if="tStepsFlag" ></steps-operation-components>
-      <steps-show-components v-else :approval-process-list="approvalProcessConstructionList"></steps-show-components>
+      <steps-operation-components v-if="activeSteps"></steps-operation-components>
+      <steps-show-components v-else></steps-show-components>
 
     </el-tab-pane>
 
@@ -18,24 +19,23 @@
 
 <script>
 
-  import stepsOperationComponents from "../components/current/flowApproval/stepsOperationComponents";
-  import stepsShowComponents from "../components/current/flowApproval/stepsShowComponents";
-  import uploadAccessoryComponents from "../components/current/fieUploadAccessory/uploadAccessoryComponents";
+  import stepsOperationComponents from "components/current/flowApproval/stepsOperationComponents";
+  import stepsShowComponents from "components/current/flowApproval/stepsShowComponents";
+  import uploadAccessoryComponents from "components/current/fieUploadAccessory/uploadAccessoryComponents";
 
   export default {
     name: "tabsComponents",
-    data(){
+    data() {
       return {
         activeTabs: 'first', //激活的标签页
-        approvalProcessConstructionList: [{}],
       }
     },
-    props:{
-      tStepsFlag:{
-        type:Boolean,
+    computed:{
+      activeSteps(){
+        return this.$store.getters.getFormObject.fromStatus === 'WAIT' ? true : false
       }
     },
-    components:{
+    components: {
       stepsOperationComponents,
       stepsShowComponents,
       uploadAccessoryComponents,
@@ -44,5 +44,6 @@
 </script>
 
 <style scoped>
+
 
 </style>

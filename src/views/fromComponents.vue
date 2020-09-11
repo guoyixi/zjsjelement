@@ -12,8 +12,7 @@
         <el-link type="primary" v-print="'#preview'" icon="el-icon-printer">打印</el-link>
       </el-col>
     </el-row>
-
-    <el-form :model="fromChangeVisa" ref="fromChangeVisa" :disabled="disable">
+    <el-form :model="fromChangeVisa" ref="fromChangeVisa">
       <div id="preview">
         <p style="text-align: center;font-family:宋体;font-size: 19px;font-weight: bolder">
           工程签证单
@@ -28,7 +27,7 @@
             </el-col>
           </el-row>
         </p>
-        <table style="border-collapse:collapse;">
+        <table id="table1" style="border-collapse:collapse;">
           <tbody>
           <tr style="height:39px" class="firstRow">
             <td width="110" valign="middle">
@@ -36,7 +35,7 @@
             </td>
             <td width="160" valign="middle">
 
-              <el-input v-model.trim="fromChangeVisa.fromPosition" placeholder="请填写分部分项位置"></el-input>
+              <el-input v-model.trim="fromChangeVisa.fromPosition" placeholder="请填写分部分项位置" :readonly="readonly"></el-input>
 
             </td>
             <td width="110" valign="middle">
@@ -48,7 +47,7 @@
                               v-model.trim="fromChangeVisa.fromConstructionDate"
                               format="yyyy 年 MM 月 dd 日"
                               value-format="yyyy-MM-dd"
-                              :clearable="false"></el-date-picker>
+                              :clearable="false" :readonly="readonly"></el-date-picker>
             </td>
             <td width="110" valign="middle" placeholder="请填写费用">
               建设单位
@@ -56,7 +55,7 @@
             </td>
             <td width="160" valign="middle">
 
-              <el-input v-model.trim="fromChangeVisa.fromBuild" placeholder="请填写建设单位"></el-input>
+              <el-input v-model.trim="fromChangeVisa.fromBuild" placeholder="请填写建设单位" :readonly="readonly"></el-input>
 
             </td>
           </tr>
@@ -67,7 +66,8 @@
             </td>
             <td width="160" valign="middle" id="td2">
 
-              <el-input v-model.trim.number="fromChangeVisa.fromDays" placeholder="请填写工期" type="number" max="100000" min="1"></el-input>
+              <el-input v-model.trim.number="fromChangeVisa.fromDays" placeholder="请填写工期" type="number" max="100000"
+                        min="1" :readonly="readonly"></el-input>
 
             </td>
 
@@ -77,7 +77,7 @@
             </td>
             <td width="160" valign="middle">
 
-              <el-input v-model.trim="fromChangeVisa.fromConstruction" placeholder="请填写施工单位"></el-input>
+              <el-input v-model.trim="fromChangeVisa.fromConstruction" placeholder="请填写施工单位" :readonly="readonly"></el-input>
 
             </td>
             <td width="110" valign="middle">
@@ -85,35 +85,89 @@
             </td>
             <td width="160" valign="middle">
 
-              <el-input v-model.number="fromChangeVisa.fromCost" placeholder="请填写费用" type="number"  max="100000000" min="0"></el-input>
-
-            </td>
-          </tr>
-
-
-          <tr>
-            <td valign="top" colspan="6">
-
-                <span style="margin:0;margin-top: 5px;text-align:center;font-family:宋体;color:rgb(164,164,164);font-size:13px">
-                  签证原因</span>
-              <el-input type="textarea" v-model.trim="fromChangeVisa.fromReason" autosize resize="none"
-                        style="min-height: 40px"></el-input>
-
-            </td>
-          </tr>
-
-          <tr>
-            <td valign="top" colspan="6">
-
-                <span style="margin:0;margin-top: 5px;text-align:center;font-family:宋体;color:rgb(164,164,164);font-size:13px">
-                  签证内容</span>
-              <el-input type="textarea" v-model.trim="fromChangeVisa.fromContent" autosize resize="none"
-                        style="min-height: 40px"></el-input>
+              <el-input v-model.number="fromChangeVisa.fromCost" placeholder="请填写费用" type="number" max="100000000"
+                        defaultValue="0"
+                        min="0" :readonly="readonly"></el-input>
 
             </td>
           </tr>
 
           </tbody>
+        </table>
+
+        <table id="table2" style="border-collapse:collapse;">
+
+          <tr style="height:124px">
+            <td width="426" valign="top" colspan="3" height="151">
+              <p>
+                某单位意见
+              </p>
+
+              <div>
+                <p>
+
+                  内容
+
+                </p>
+              </div>
+
+              
+            </td>
+
+            <td width="426" valign="top" colspan="3" height="151" >
+              <p>
+                某单位意见
+              </p>
+
+              <div>
+                <p>
+
+                  内容
+
+                </p>
+              </div>
+
+              
+            </td>
+
+          </tr>
+
+          <tr style="height:124px">
+            <td width="426" valign="top" colspan="3" height="151">
+              <p>
+                某单位意见
+              </p>
+
+              <div>
+                <p>
+
+                  内容
+
+                </p>
+              </div>
+
+              
+            </td>
+
+            <td width="426" valign="top" colspan="3" height="151" >
+              <p>
+                某单位意见
+              </p>
+
+              <div>
+                <p>
+
+                  内容
+
+                </p>
+              </div>
+
+              
+            </td>
+
+          </tr>
+
+
         </table>
       </div>
     </el-form>
@@ -122,11 +176,8 @@
 </template>
 
 <script>
-
-  import {requestFromInit} from "network/request";
-  import {requestFromCommit} from "network/request";
   import qs from "qs";
-
+  import {requestFromCommit, requestFromInit} from "network/request";
 
   export default {
     name: "fromComponents",
@@ -135,7 +186,7 @@
         fromChangeVisa: {
           fromId: null,
           fromType: null,
-          fromStatus: 'ACTION',
+          fromStatus: 'WAIT',
           fromProjectName: null,
           fromPosition: null,
           fromBuild: null,
@@ -150,12 +201,11 @@
           fromFlowId: null,
           fromFlowModeId: null,
         },
-        disable: false
-      };
+      }
     },
     methods: {
-      submitForm() {
-
+      validateForm() {
+        /*验证表单*/
         let errorMessage;
         if (!this.fromChangeVisa.fromPosition) {
           errorMessage = "请填写分部分项位置";
@@ -163,108 +213,66 @@
           errorMessage = "请选择施工时间";
         } else if (!this.fromChangeVisa.fromBuild) {
           errorMessage = "请填写建设单位";
-        } else if (!this.fromChangeVisa.fromDays != '' && this.fromChangeVisa.fromDays != 0) {
+        } else if (!this.fromChangeVisa.fromDays) {
+          errorMessage = "请填正确写工期";
+        } else if (isNaN(this.fromChangeVisa.fromDays)) {
           errorMessage = "请填正确写工期";
         } else if (!this.fromChangeVisa.fromConstruction) {
           errorMessage = "请填写施工单位";
-        } else if (!this.fromChangeVisa.fromCost && this.fromChangeVisa.fromCost != 0) {
-          errorMessage = "请正确填写费用";
+        } else if (!this.fromChangeVisa.fromCost) {
+          if (this.fromChangeVisa.fromType == 0)
+            errorMessage = "请填写费用";
+        } else if (isNaN(this.fromChangeVisa.fromDays)) {
+          errorMessage = "费用不能为字符";
         } else if (!this.fromChangeVisa.fromReason) {
           errorMessage = "请输填写原因";
         } else if (!this.fromChangeVisa.fromContent) {
           errorMessage = "请输入内容";
         }
-
-        if (errorMessage != null) {
-          this.$message({
-            title: '提示',
-            message: errorMessage,
-            type: 'error',
-            offset: 40,
-            duration: 2000
-          });
-          return false;
-        }
-
+        return errorMessage;
+      },
+      submitForm() {
         //向 fromChangeVisa 追加 fromStatus:ACTION
-        const FROMOBJ = Object.defineProperty(this.fromChangeVisa, "fromStatus", {
-          value: "ACTION"
-        })
+        this.$set(this.fromChangeVisa, "fromStatus", "ACTION")
 
         //提交表单
         requestFromCommit({
           url: "save",
           method: "post",
-          data: FROMOBJ,
+          data: this.fromChangeVisa,
           transformRequest: [function (data) {
             data = qs.stringify(data);
             return data;
           }],
-        }).then(
-            res => {
+        }).then(res => {
 
-              if(res.result){
-                //禁用表单
-                this.disable = true
-                this.$emit("steps-flag", false);
-              }
-            },
-            error => {
-              console.log(error);
-            }
-        )
+          this.fromChangeVisa = res.data;
+          this.$store.commit("updateFormObject",res.data);
 
+        }, error => {
 
+          console.log(error);
+
+        });
+
+      },
+      loadTable(){
+
+      },
+      init(){
+        this.fromChangeVisa = this.$store.getters.getFormObject;
+      }
+    },
+    computed: {
+      readonly(){
+        return this.fromChangeVisa.fromStatus === 'WAIT' ? false : true
       }
     },
     created() {
-
-      //获取路径上的表单ID
-      // let fromId = getUrlParam('fromId');
-      let fromId = 60;
-
-      //请求数据
-      requestFromInit({
-        url: 'init',
-        method: "get",
-        params: {fromId: fromId},
-      }).then(res => {
-
-        if(res.result){
-
-          //获取FORM
-          const FROMOBJ = res.data;
-
-          //存储FORM
-          this.fromChangeVisa = FROMOBJ;
-
-          if (FROMOBJ.fromStatus === "WAIT") {
-            this.disable = false
-          } else {
-            this.disable = true
-            this.$emit("steps-flag", false);
-          }
-
-        }
-
-      }, error => {
-        console.log(error);
-      });
-
-
-      this.$store.commit({type: "updateFormX", fromId});
-
+      this.init();
     },
-    computed: {},
-    filters: {}
   }
 
-  function getUrlParam(name) {
-    var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
-    var r = window.location.search.substr(1).match(reg);
-    if (r != null) return unescape(r[2]);
-    return null;
-  }
 
 </script>
 
@@ -274,10 +282,11 @@
   #fromView {
     width: 866px;
     margin: 0 auto;
+    overflow: hidden;
   }
 
   #preview {
-    padding: 10px;
+    /*padding: 10px;*/
     flex: 1;
   }
 
@@ -286,12 +295,17 @@
     font-size: 14px;
   }
 
-  #preview table, td {
+  #table1,#table1 td {
     text-align: center;
     border: solid #000 1px;
   }
 
-  #preview td input {
+  #table2, #table2 td{
+    border: solid #000 1px;
+    border-top-width: 0;
+  }
+
+  #table1 td input {
     outline: none;
     border: none;
   }

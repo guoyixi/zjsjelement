@@ -1,12 +1,25 @@
+import {requestFromInit} from "network/request";
+import {getUrlParam} from "common/utils/pathUtils";
+
+//获取路径上的表单ID
+// let fromId = getUrlParam('fromId');
+let fromId = 93;
+
 export default {
   initFormObject(context, payload) {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        context.commit('updateInfo');
-        console.log(payload);
+    return requestFromInit({
+      url: 'init',
+      method: "get",
+      // params: {fromId},
+      params: {fromId},
+    }).then(res => {
 
-        resolve('1111111')
-      }, 1000)
-    })
+      context.commit("updateFormObject",res.data)
+
+    }, error => {
+
+      throw new Error(error);
+
+    });
   }
 }

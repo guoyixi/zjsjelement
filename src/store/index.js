@@ -5,17 +5,14 @@ import mutations from './mutations'
 import actions from './actions'
 import getters from './getters'
 
+
 // 1.安装插件
 Vue.use(Vuex)
 
 // 2.创建对象
 const state = {
-  fromX:{
-    formIdX:0,
-    formStatusX:"WAIT",
-  }
+  formObject:null
 }
-
 
 const store = new Vuex.Store({
   state,

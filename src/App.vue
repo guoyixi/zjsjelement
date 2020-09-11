@@ -1,16 +1,17 @@
 <template>
   <div id="app" style="margin:auto;width:1460px;border: 1px dashed red">
 
-    <el-container>
+    <el-container v-if="show">
       <el-main width="930px" id="main">
 
-        <from-components @steps-flag="stepFlag => {stepsFlag=stepFlag}" ref="fromComponents"  ></from-components>
+        <from-components ref="fromComponents"></from-components>
+
 
       </el-main>
 
-      <el-aside width="490px" id="aside">
+      <el-aside width="34%" id="aside">
 
-        <tabs-components :t-steps-flag="stepsFlag"></tabs-components>
+        <tabs-components ref="tabsComponents"></tabs-components>
 
       </el-aside>
 
@@ -20,25 +21,40 @@
 </template>
 
 <script>
-  import fromComponents from "./views/fromComponents";
-  import tabsComponents from "./views/tabsComponents";
+
+  import fromComponents from "views/fromComponents";
+  import tabsComponents from "views/tabsComponents";
 
   export default {
     name: 'app',
     data(){
-      return{
-        //默认显示操作页
-        stepsFlag:true,
+      return {
+        show:false
+      }
+    },
+    methods:{
+      init(){
+        this.$store.dispatch("initFormObject").then(res => {
+          this.show = true
+        }, error => {
+          console.error(error);
+        })
       }
     },
     components: {
       fromComponents,
       tabsComponents,
+    },
+    created() {
+      this.init();
     }
   }
+
+
 </script>
 
 <style scoped>
+
   #main {
     height: 100%;
     background: white;
@@ -53,4 +69,5 @@
     padding: 10px 10px 10px 10px;
     border: 1px solid green;
   }
+
 </style>
