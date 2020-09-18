@@ -1,7 +1,11 @@
-<template>
-  <div id="app" style="margin:auto;width:1460px;border: 1px dashed red">
+<template >
+  <div id="app">
 
-    <el-container v-if="show">
+<!--    v-loading="$store.getters.getLoading"-->
+<!--    this.$store.commit("updateLoading", false)-->
+
+    <transition>
+    <el-container v-if="show" >
       <el-main width="930px" id="main">
 
         <from-components ref="fromComponents"></from-components>
@@ -16,6 +20,7 @@
       </el-aside>
 
     </el-container>
+    </transition>
 
   </div>
 </template>
@@ -27,18 +32,9 @@
 
   export default {
     name: 'app',
-    data(){
+    data() {
       return {
-        show:false
-      }
-    },
-    methods:{
-      init(){
-        this.$store.dispatch("initFormObject").then(res => {
-          this.show = true
-        }, error => {
-          console.error(error);
-        })
+        show: false
       }
     },
     components: {
@@ -46,7 +42,11 @@
       tabsComponents,
     },
     created() {
-      this.init();
+      this.$store.dispatch("initFormObject").then(res => {
+        this.show = true
+      }, error => {
+        console.error(error);
+      })
     }
   }
 
@@ -54,6 +54,12 @@
 </script>
 
 <style scoped>
+
+  #app {
+    margin: auto;
+    width: 1460px;
+    border: 1px dashed red
+  }
 
   #main {
     height: 100%;

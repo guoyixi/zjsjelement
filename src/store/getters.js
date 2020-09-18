@@ -1,5 +1,8 @@
 export default  {
   getFormObject(state){
-    return state.formObject
+    return state.formObject;
+  },
+  getLoading(state){
+    return state.loading;
   }
 }

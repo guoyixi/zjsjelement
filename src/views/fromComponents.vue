@@ -35,7 +35,8 @@
             </td>
             <td width="160" valign="middle">
 
-              <el-input v-model.trim="fromChangeVisa.fromPosition" placeholder="请填写分部分项位置" :readonly="readonly"></el-input>
+              <el-input v-model.trim="fromChangeVisa.fromPosition" placeholder="请填写分部分项位置"
+                        :readonly="readonly"></el-input>
 
             </td>
             <td width="110" valign="middle">
@@ -77,7 +78,8 @@
             </td>
             <td width="160" valign="middle">
 
-              <el-input v-model.trim="fromChangeVisa.fromConstruction" placeholder="请填写施工单位" :readonly="readonly"></el-input>
+              <el-input v-model.trim="fromChangeVisa.fromConstruction" placeholder="请填写施工单位"
+                        :readonly="readonly"></el-input>
 
             </td>
             <td width="110" valign="middle">
@@ -119,45 +121,75 @@
 
         <table id="table2" style="border-collapse:collapse;">
 
-          <tr v-for="(item,index) in opinionList" style="height:124px">
+          <tr v-for="(item,index) in opinionList" v-if="index % 2 == 0">
+
+            <!--            <td width="426" valign="top" colspan="3" height="151" v-for="(it,i) in opinionList.slice(index,index+2)" >
+
+                          <div>
+                            <div>
+                              {{it.nodeConstructionName}}意见：
+                            </div>
+
+                            <div>
+
+                              {{it.nodeOpinion}}
+
+                            </div>
+                          </div>
+
+                        </td>-->
+            <!--            <td width="426" valign="top" colspan="3" height="151" v-for="(it,i) in opinionList" v-if="i>=index&&i<index+2">
+
+                          <div>
+                            <div>
+                              {{it.nodeConstructionName}}意见：
+                            </div>
+
+                            <div>
+
+                              {{it.nodeOpinion}}
+
+                            </div>
+                          </div>
+
+                        </td>-->
+
             <td width="426" valign="top" colspan="3" height="151">
-              <p>
-                某单位意见
-              </p>
 
               <div>
-                <p>
+                <div>
+                  {{item.nodeConstructionName}}意见：
+                </div>
 
-                  内容
+                <div>
 
-                </p>
+                  {{item.nodeOpinion}}
+
+                </div>
               </div>
 
-              
             </td>
 
             <td width="426" valign="top" colspan="3" height="151" >
-              <p>
-                某单位意见
-              </p>
 
               <div>
-                <p>
+                <div>
+                  {{opinionList[index+1].nodeConstructionName}}意见：
+                </div>
 
-                  内容
+                <div>
 
-                </p>
+                  {{opinionList[index+1].nodeOpinion}}
+
+                </div>
               </div>
 
-              
             </td>
 
           </tr>
 
-
-
-
         </table>
+
       </div>
     </el-form>
 
@@ -165,7 +197,6 @@
 </template>
 
 <script>
-  import qs from "qs";
   import {requestFromCommit, requestNodeInit} from "network/request";
 
   export default {
@@ -190,7 +221,12 @@
           fromFlowId: null,
           fromFlowModeId: null,
         },
-        opinionList:[{}]
+        opinionList: [],
+      }
+    },
+    computed: {
+      readonly() {
+        return this.fromChangeVisa.fromStatus === 'WAIT' ? false : true
       }
     },
     methods: {
@@ -237,7 +273,7 @@
         }).then(res => {
 
           this.fromChangeVisa = res.data;
-          this.$store.commit("updateFormObject",res.data);
+          this.$store.commit("updateFormObject", res.data);
 
         }, error => {
 
@@ -246,45 +282,36 @@
         });
 
       },
-      loadTable(){
+      reLoadTable() {
 
         const formObject = this.$store.getters.getFormObject;
 
-        if(formObject.fromStatus!=="WAIT"){
+        if (formObject.fromStatus !== "WAIT") {
           requestNodeInit({
             url: 'loadFlowList',
             method: "get",
             params: {
-              fromId:formObject.fromId,
+              fromId: formObject.fromId,
               nodeFromId: formObject.fromId
             }
           }).then(res => {
 
-            // this.flowList = res.flowList;
-            // this.currentUser = res.currentUser;
-            // this.currentNode = res.currentNode;
+            this.opinionList = res.opinionList;
 
           }, error => {
             console.log(error);
           })
+
         }
 
-
-
       },
-      init(){
+      init() {
         this.fromChangeVisa = this.$store.getters.getFormObject;
-      }
-    },
-    computed: {
-      readonly(){
-        return this.fromChangeVisa.fromStatus === 'WAIT' ? false : true
       }
     },
     created() {
       this.init();
-      this.loadTable();
-    },
+    }
   }
 
 
@@ -309,12 +336,12 @@
     font-size: 14px;
   }
 
-  #table1,#table1 td {
+  #table1, #table1 td {
     text-align: center;
     border: solid #000 1px;
   }
 
-  #table2, #table2 td{
+  #table2, #table2 td {
     border: solid #000 1px;
     border-top-width: 0;
   }

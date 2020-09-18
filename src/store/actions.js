@@ -3,7 +3,7 @@ import {getUrlParam} from "common/utils/pathUtils";
 
 //获取路径上的表单ID
 // let fromId = getUrlParam('fromId');
-let fromId = 94;
+let fromId = 97;
 
 export default {
   initFormObject(context, payload) {

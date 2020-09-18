@@ -10,6 +10,7 @@ import Print from 'vue-print-nb'
 Vue.use(Print);
 
 Vue.config.productionTip = false
+Vue.prototype.mywindow = window
 
 new Vue({
   store,

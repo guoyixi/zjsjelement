@@ -144,7 +144,6 @@
           4、判断fromType==1的 变更 单费用 == 0
         */
         let message = this.$root.$children[0].$refs.fromComponents.validateForm();
-        console.log(message);
         if (message != null) {
           this.$message({
             title: '提示',

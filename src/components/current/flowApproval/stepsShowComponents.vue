@@ -4,7 +4,7 @@
   <!--<el-steps :active="currentNode" process-status="wait" finish-status="error" refs="flow"-->
 
   <el-steps :active="currentNode" :finish-status="finish" :process-status="process" ref="node"
-            direction="vertical" :space="80" v-loading="load">
+            direction="vertical" :space="80">
     <el-step title="建设单位" v-for="(item,index) in flowList"
              :key="item.id">
 
@@ -26,7 +26,7 @@
       <!--审批中-->
       <template slot="description" v-if="index==currentNode">
 
-        <div v-if="$store.getters.getFormObject.fromStatus==='STOP'" class="step-row error" >
+        <div v-if="$store.getters.getFormObject.fromStatus==='STOP'" class="step-row error">
           审批人 <span style="color:#219AFF">{{item.nodeUserName}}</span> 驳回审批
         </div>
 
@@ -43,15 +43,15 @@
 
           <!--审批意见-->
           <el-form-item label="会签栏：" prop="approvalCountersign">
-            <el-input type="textarea" v-model="node.approvalCountersign" :autosize="{minRows:2,maxRows:1000}"
+            <el-input type="textarea" v-model="node.approvalCountersign" :autosize="{minRows:5,maxRows:1000}"
                       resize="none"></el-input>
           </el-form-item>
 
           <el-form-item>
-            <el-button type="success" @click="resolve('node',item.id,node.approvalCountersign)">
+            <el-button type="success" @click="resolveOrReject(1,item.id,node.approvalCountersign)">
               下一级审批人
             </el-button>
-            <el-button type="danger" @click="reject(item.id,node.approvalCountersign)">驳回</el-button>
+            <el-button type="danger" @click="resolveOrReject(0,item.id,node.approvalCountersign)">驳回</el-button>
           </el-form-item>
 
           <!--info——灰色 / primary —— 黑色 / primary —— 蓝色 / danger —— 红色 / success —— 绿色 -->
@@ -99,7 +99,6 @@
     name: "stepsShowComponents",
     data() {
       return {
-        load: true,
         node: {   // 审批意见表单
           approvalCountersign: '',
         },
@@ -116,15 +115,15 @@
       }
     },
     computed: {
-      finish(){
+      finish() {
         const status = this.$store.getters.getFormObject.fromStatus;
 
-        return status==="ACTION"||status==="END"?"success":"wait";
+        return status === "ACTION" || status === "END" ? "success" : "wait";
       },
-      process(){
+      process() {
         const status = this.$store.getters.getFormObject.fromStatus;
 
-        return status==="STOP"?"error":"finish";
+        return status === "STOP" ? "error" : "finish";
       },
     },
     methods: {
@@ -138,65 +137,83 @@
         })
 
       },
-      resolve(ref, id, nodeOpinion) {
+      resolve(id, nodeOpinion) {
+
+        //清空表单
+        this.$refs.node[0].resetFields();
+        //节点增加
+        this.currentNode++;
 
         // 调用方式
         // console.log(this.$refs[ref][0]);
         // console.log(this.$refs.node[0]);
-        this.validate(() => {
-          requestNodeCommit({
-            url: "resolve",
-            method: "post",
-            data: {
-              id: id,
-              nodeOpinion: nodeOpinion,
-            },
-            params: {
-              fromId: this.$store.getters.getFormObject.fromId,
-            }
-          })
-
-          this.$refs.node[0].resetFields();
-
-          //控制流程节点增加
-          this.currentNode++;
-
+        return requestNodeCommit({
+          url: "resolve",
+          method: "post",
+          data: {
+            id: id,
+            nodeOpinion: nodeOpinion,
+          },
+          params: {
+            fromId: this.$store.getters.getFormObject.fromId,
+          }
+        }).then(res => {
+          return res;
+        }).catch(error => {
+          return error;
         })
+
 
       },
       reject(id, nodeOpinion) {
 
+        return requestNodeCommit({
+          url: "reject",
+          method: "post",
+          data: {
+            id: id,
+            nodeOpinion: nodeOpinion,
+            nodeDate: new Date(),
+          },
+          params: {
+            fromId: this.$store.getters.getFormObject.fromId,
+            fromStatus: "STOP",
+          }
+        }).then(res => {
+
+          this.$store.commit("updateFormObject", res.data);
+
+          return res;
+        }, error => {
+
+          return error;
+        })
+
+      },
+      resolveOrReject(flag, id, nodeOpinion) {
+
         this.validate(() => {
-          requestNodeCommit({
-            url: "reject",
-            method: "post",
-            data: {
-              id: id,
-              nodeOpinion: nodeOpinion,
-              nodeDate:new Date(),
-            },
-            params: {
-              fromId: this.$store.getters.getFormObject.fromId,
-              fromStatus: "STOP",
-            }
-          }).then(res => {
+          let result = flag ? this.resolve(id, nodeOpinion) : this.reject(id, nodeOpinion);
+          result.then(res => {
 
-            this.$store.commit("updateFormObject",res.data)
+            this.initOpinion();
 
-          }, error => {
+          }).catch(error => {
+
+            console.log(error);
 
           })
-        })
+        });
 
 
       },
-      init() {
+      initData() {
         const id = this.$store.getters.getFormObject.fromId;
         requestNodeInit({
           url: 'getNodeList',
           method: "get",
           params: {
-            fromId:id,
+            fromId: id,
             nodeFromId: id
           }
         }).then(res => {
@@ -207,16 +224,20 @@
 
         }, error => {
           console.log(error);
-        }).finally(o => {
-          this.load = false
         })
-
+      },
+      initOpinion() {
+        this.$root.$children[0].$refs.fromComponents.reLoadTable();
       }
     },
     created() {
 
-      this.init();
+      this.initData();
+      this.initOpinion();
 
+
+    },
+    mounted() {
     },
     filters: {}
   }
@@ -250,8 +271,6 @@
   .error {
     background-color: #ffe0e0;
   }
-
-
 
 
 </style>
