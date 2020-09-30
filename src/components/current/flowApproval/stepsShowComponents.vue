@@ -3,20 +3,21 @@
   <!--wait——灰色 / process —— 黑色 / finish —— 蓝色 / error —— 红色 / success —— 绿色 -->
   <!--<el-steps :active="currentNode" process-status="wait" finish-status="error" refs="flow"-->
 
-  <el-steps :active="currentNode" :finish-status="finish" :process-status="process" ref="node"
+  <el-steps :active="currentNode-1" :finish-status="finish" :process-status="process" ref="node"
             direction="vertical" :space="80">
     <el-step title="建设单位" v-for="(item,index) in flowList"
              :key="item.id">
 
       <template slot="icon">
-        <strong>{{index+1}}</strong>
+        <strong>{{item.nodeId}}</strong>
       </template>
       <template slot="title">
         <span>{{item.nodeConstructionName + ' —— ' + item.nodeUserName}}</span>
       </template>
 
+
       <!--已审批-->
-      <template slot="description" v-if="index<currentNode">
+      <template slot="description" v-if="item.nodeId<currentNode">
         <div class="step-row" :class="finish">
           审批人 <span style="color:#219AFF">{{item.nodeUserName}}</span> 通过审批
         </div>
@@ -24,7 +25,7 @@
       </template>
 
       <!--审批中-->
-      <template slot="description" v-if="index==currentNode">
+      <template slot="description" v-if="item.nodeId==currentNode">
 
         <div v-if="$store.getters.getFormObject.fromStatus==='STOP'" class="step-row error">
           审批人 <span style="color:#219AFF">{{item.nodeUserName}}</span> 驳回审批
@@ -42,20 +43,20 @@
           <!--审批时间 -->
 
           <!--审批意见-->
-          <el-form-item label="会签栏：" prop="approvalCountersign">
-            <el-input type="textarea" v-model="node.approvalCountersign" :autosize="{minRows:5,maxRows:1000}"
+          <el-form-item label="会签栏：" prop="nodeOpinion">
+            <el-input type="textarea" v-model="node.nodeOpinion" :autosize="{minRows:5,maxRows:1000}"
                       resize="none"></el-input>
           </el-form-item>
 
           <el-form-item>
-            <el-button type="success" @click="resolveOrReject(1,item.id,node.approvalCountersign)">
+            <el-button type="success" @click="resolveOrReject(1,item,node.nodeOpinion)">
               下一级审批人
             </el-button>
-            <el-button type="danger" @click="resolveOrReject(0,item.id,node.approvalCountersign)">驳回</el-button>
+            <el-button type="danger" @click="resolveOrReject(0,item,node.nodeOpinion)">驳回</el-button>
           </el-form-item>
 
           <!--info——灰色 / primary —— 黑色 / primary —— 蓝色 / danger —— 红色 / success —— 绿色 -->
-          <!--          <el-form-item >
+          <!--          <el-form-node >
                       <el-row >
                         <el-col :span="5">
                           <el-button type="info">签字</el-button>
@@ -70,7 +71,7 @@
                           <el-button type="danger">驳回</el-button>
                         </el-col>
                       </el-row>
-                    </el-form-item>-->
+                    </el-form-node>-->
 
 
         </el-form>
@@ -80,7 +81,7 @@
       </template>
 
       <!--待审批-->
-      <template slot="description" v-if="index>currentNode">
+      <template slot="description" v-if="item.nodeId>currentNode">
         <div class="step-row wait">
           {{item.nodeUserName}} 待审批
         </div>
@@ -100,11 +101,12 @@
     data() {
       return {
         node: {   // 审批意见表单
-          approvalCountersign: '',
+          nodeOpinion: '',
         },
         nodeRules: { // 审批意见表单的验证规则
-          approvalCountersign: [
+          nodeOpinion: [
             {required: true, message: '请填写会签栏', trigger: 'blur'},
+            { min: 1, max: 255, message: '意见字符长短超出', trigger: 'blur' }
           ]
         },
 
@@ -118,7 +120,7 @@
       finish() {
         const status = this.$store.getters.getFormObject.fromStatus;
 
-        return status === "ACTION" || status === "END" ? "success" : "wait";
+        return status === "ACTION" || status === "END" ? "success" : "success";
       },
       process() {
         const status = this.$store.getters.getFormObject.fromStatus;
@@ -137,27 +139,48 @@
         })
 
       },
-      resolve(id, nodeOpinion) {
+      resolveOrReject(flag, node, nodeOpinion) {
+
+        node.nodeOpinion = nodeOpinion;
+        node.nodeDate = new Date();
+
+        this.validate(() => {
+
+          //状态
+          let formObject = this.$store.getters.getFormObject;
+              formObject.fromStatus =  flag ? node.nodeId==this.flowList.length?'END':'ACTION' : 'STOP';
+          this.$store.commit("updateFormObject",formObject)
+
+          //意见
+          let opinions = this.$store.getters.getOpinions;
+              opinions.push(node);
+          this.$store.commit("updateOpinions", opinions);
+
+          //执行
+          let result = flag ? this.resolve(node,formObject.fromStatus) : this.reject(node);
+
+        })
+
+
+      },
+      resolve(node,status) {
 
         //清空表单
         this.$refs.node[0].resetFields();
+
         //节点增加
         this.currentNode++;
 
-        // 调用方式
-        // console.log(this.$refs[ref][0]);
-        // console.log(this.$refs.node[0]);
         return requestNodeCommit({
           url: "resolve",
           method: "post",
-          data: {
-            id: id,
-            nodeOpinion: nodeOpinion,
-          },
+          data: node,
           params: {
             fromId: this.$store.getters.getFormObject.fromId,
+            fromStatus: status,
           }
         }).then(res => {
+          // this.$message.success(res.message)
           return res;
         }).catch(error => {
           return error;
@@ -165,46 +188,22 @@
 
 
       },
-      reject(id, nodeOpinion) {
+      reject(node) {
 
         return requestNodeCommit({
           url: "reject",
           method: "post",
-          data: {
-            id: id,
-            nodeOpinion: nodeOpinion,
-            nodeDate: new Date(),
-          },
+          data: node,
           params: {
             fromId: this.$store.getters.getFormObject.fromId,
             fromStatus: "STOP",
           }
         }).then(res => {
-
-          this.$store.commit("updateFormObject", res.data);
-
+          // this.$message.success(res.message)
           return res;
         }, error => {
-
           return error;
         })
-
-      },
-      resolveOrReject(flag, id, nodeOpinion) {
-
-        this.validate(() => {
-          let result = flag ? this.resolve(id, nodeOpinion) : this.reject(id, nodeOpinion);
-          result.then(res => {
-
-            this.initOpinion();
-
-          }).catch(error => {
-
-            console.log(error);
-
-          })
-        });
-
 
       },
       initData() {
@@ -222,20 +221,20 @@
           this.currentUser = res.currentUser;
           this.currentNode = res.currentNode;
 
+          console.log(this.flowList.length != this.currentNode);
+
+          this.$store.commit("updateOpinions",this.flowList.length != this.currentNode?res.flowList.filter(flow => {
+
+            return flow.nodeId < res.currentNode;
+          }):this.flowList);
+
         }, error => {
           console.log(error);
         })
       },
-      initOpinion() {
-        this.$root.$children[0].$refs.fromComponents.reLoadTable();
-      }
     },
     created() {
-
       this.initData();
-      this.initOpinion();
-
-
     },
     mounted() {
     },
@@ -260,6 +259,7 @@
     background-color: #c2e2c0
   }
 
+
   .wait {
     background-color: #eeeeee
   }
@@ -271,6 +271,8 @@
   .error {
     background-color: #ffe0e0;
   }
+
+
 
 
 </style>

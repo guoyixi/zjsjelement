@@ -121,67 +121,25 @@
 
         <table id="table2" style="border-collapse:collapse;">
 
-          <tr v-for="(item,index) in opinionList" v-if="index % 2 == 0">
+          <tr v-for="(item,index) in $store.getters.getOpinions" v-if="index % 2 == 0">
 
-            <!--            <td width="426" valign="top" colspan="3" height="151" v-for="(it,i) in opinionList.slice(index,index+2)" >
+            <td width="426" valign="top" colspan="3" height="151" v-for="it in $store.getters.getOpinions.slice(index,index+2)" >
 
-                          <div>
-                            <div>
-                              {{it.nodeConstructionName}}意见：
-                            </div>
+              <div style="margin: 10px">
+                <p>
+                  {{it.nodeConstructionName}}意见：
+                </p>
 
-                            <div>
+                <p align="center">
 
-                              {{it.nodeOpinion}}
+                  <el-input type="textarea" v-model.trim="it.nodeOpinion" autosize resize="none" :readonly="true"
+                            style="min-height: 40px"></el-input>
 
-                            </div>
-                          </div>
 
-                        </td>-->
-            <!--            <td width="426" valign="top" colspan="3" height="151" v-for="(it,i) in opinionList" v-if="i>=index&&i<index+2">
-
-                          <div>
-                            <div>
-                              {{it.nodeConstructionName}}意见：
-                            </div>
-
-                            <div>
-
-                              {{it.nodeOpinion}}
-
-                            </div>
-                          </div>
-
-                        </td>-->
-
-            <td width="426" valign="top" colspan="3" height="151">
-
-              <div>
-                <div>
-                  {{item.nodeConstructionName}}意见：
-                </div>
-
-                <div>
-
-                  {{item.nodeOpinion}}
-
-                </div>
-              </div>
-
-            </td>
-
-            <td width="426" valign="top" colspan="3" height="151" >
-
-              <div>
-                <div>
-                  {{opinionList[index+1].nodeConstructionName}}意见：
-                </div>
-
-                <div>
-
-                  {{opinionList[index+1].nodeOpinion}}
-
-                </div>
+                </p>
+                <p align="right">
+                  {{$moment(it.nodeDate).format("YYYY-MM-DD HH:mm:ss")}}
+                </p>
               </div>
 
             </td>
@@ -198,33 +156,37 @@
 
 <script>
   import {requestFromCommit, requestNodeInit} from "network/request";
+  import qs from 'qs'
 
   export default {
     name: "fromComponents",
     data() {
       return {
-        fromChangeVisa: {
-          fromId: null,
-          fromType: null,
-          fromStatus: 'WAIT',
-          fromProjectName: null,
-          fromPosition: null,
-          fromBuild: null,
-          fromConstructionDate: new Date(),
-          fromConstruction: null,
-          fromCost: null,
-          fromDays: null,
-          fromReason: null,
-          fromContent: null,
-          fromSponsor: null,
-          fromProjectId: null,
-          fromFlowId: null,
-          fromFlowModeId: null,
-        },
+        // fromChangeVisa: {
+        //   fromId: null,
+        //   fromType: null,
+        //   fromStatus: 'WAIT',
+        //   fromProjectName: null,
+        //   fromPosition: null,
+        //   fromBuild: null,
+        //   fromConstructionDate: new Date(),
+        //   fromConstruction: null,
+        //   fromCost: null,
+        //   fromDays: null,
+        //   fromReason: null,
+        //   fromContent: null,
+        //   fromSponsor: null,
+        //   fromProjectId: null,
+        //   fromFlowId: null,
+        //   fromFlowModeId: null,
+        // },
         opinionList: [],
       }
     },
     computed: {
+      fromChangeVisa(){
+        return this.$store.getters.getFormObject;
+      },
       readonly() {
         return this.fromChangeVisa.fromStatus === 'WAIT' ? false : true
       }
@@ -265,14 +227,9 @@
         requestFromCommit({
           url: "save",
           method: "post",
-          data: this.fromChangeVisa,
-          transformRequest: [function (data) {
-            data = qs.stringify(data);
-            return data;
-          }],
+          data: qs.stringify(this.fromChangeVisa),
         }).then(res => {
 
-          this.fromChangeVisa = res.data;
           this.$store.commit("updateFormObject", res.data);
 
         }, error => {
@@ -282,36 +239,8 @@
         });
 
       },
-      reLoadTable() {
-
-        const formObject = this.$store.getters.getFormObject;
-
-        if (formObject.fromStatus !== "WAIT") {
-          requestNodeInit({
-            url: 'loadFlowList',
-            method: "get",
-            params: {
-              fromId: formObject.fromId,
-              nodeFromId: formObject.fromId
-            }
-          }).then(res => {
-
-            this.opinionList = res.opinionList;
-
-          }, error => {
-            console.log(error);
-          })
-
-        }
-
-      },
-      init() {
-        this.fromChangeVisa = this.$store.getters.getFormObject;
-      }
     },
-    created() {
-      this.init();
-    }
+
   }
 
 

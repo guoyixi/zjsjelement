@@ -11,7 +11,7 @@
     </el-tab-pane>
 
     <el-tab-pane label="附件上传" name="second">
-      <upload-accessory-components></upload-accessory-components>
+      <upload-operation-components ref="uploadOperationComponents"></upload-Operation-components>
     </el-tab-pane>
 
   </el-tabs>
@@ -21,7 +21,7 @@
 
   import stepsOperationComponents from "components/current/flowApproval/stepsOperationComponents";
   import stepsShowComponents from "components/current/flowApproval/stepsShowComponents";
-  import uploadAccessoryComponents from "components/current/fieUploadAccessory/uploadAccessoryComponents";
+  import uploadOperationComponents from "components/current/fileUploadAccessory/uploadOperationComponents";
 
   export default {
     name: "tabsComponents",
@@ -38,7 +38,7 @@
     components: {
       stepsOperationComponents,
       stepsShowComponents,
-      uploadAccessoryComponents,
+      uploadOperationComponents,
     }
   }
 </script>

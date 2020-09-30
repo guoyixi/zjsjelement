@@ -11,8 +11,9 @@ Vue.use(Vuex)
 
 // 2.创建对象
 const state = {
-  formObject:null,
   loading: true,
+  formObject:null,
+  opinions:null,
 }
 
 const store = new Vuex.Store({

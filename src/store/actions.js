@@ -2,8 +2,8 @@ import {requestFromInit} from "network/request";
 import {getUrlParam} from "common/utils/pathUtils";
 
 //获取路径上的表单ID
-// let fromId = getUrlParam('fromId');
-let fromId = 97;
+let fromId = getUrlParam('fromId');
+// let fromId = 4
 
 export default {
   initFormObject(context, payload) {

@@ -5,13 +5,21 @@ module.exports = {
         'assets': '@/assets',
         'common': '@/common',
         'components': '@/components',
+        'plugins': '@/plugins',
         'network': '@/network',
         'views': '@/views',
       }
     }
   },
   devServer: {
-    proxy: 'http://localhost:8980'
+    open: false,
+    hot: true,
+    compress: true,
+    proxy: {
+      "/":{
+        target:'http://localhost:8980'
+      }
+    }
   },
   publicPath:""
 

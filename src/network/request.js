@@ -1,5 +1,4 @@
 import axios from 'axios'
-import qs from 'qs'
 
 export function requestFromInit(config) {
   // 1.创建axios的实例
@@ -9,6 +8,7 @@ export function requestFromInit(config) {
 
   // 2.1 请求响应
   instance.interceptors.request.use(config => {
+    console.log(config);
     return config
   }, err => {
     console.log("请求失败：", err);
@@ -61,10 +61,6 @@ export function requestFlowCommit(config) {
   // 1.创建axios的实例
   const instance = axios.create({
     baseURL: '/zjsj/a/from/zjsjProjectFrom',
-    transformRequest: [function (data) {
-      data = qs.stringify(data);
-      return data;
-    }],
   })
 
   // 2.1 请求响应
@@ -175,6 +171,33 @@ export function requestUploadFile(config) {
   // 1.创建axios的实例
   const instance = axios.create({
     baseURL: '/zjsj/a/file',
+  })
+
+  // 2.1 请求响应
+  instance.interceptors.request.use(config => {
+    return config
+  }, err => {
+    console.log("请求失败：", err);
+  })
+
+  // 2.2.响应拦截
+  instance.interceptors.response.use(res => {
+    if (res.data.result=='login') {
+      throw new Error(res.message)
+    }
+    return res.data
+  }, err => {
+    console.log("响应失败：", err);
+  })
+
+  // 3.发送真正的网络请求
+  return instance(config)
+}
+
+export function requestUploadBusiness(config) {
+  // 1.创建axios的实例
+  const instance = axios.create({
+    baseURL: '/zjsj/a/from/file/zjsjProjectFromFile',
   })
 
   // 2.1 请求响应

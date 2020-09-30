@@ -1,8 +1,11 @@
 export default  {
+  getLoading(state){
+    return state.loading;
+  },
   getFormObject(state){
     return state.formObject;
   },
-  getLoading(state){
-    return state.loading;
+  getOpinions(state){
+    return state.opinions;
   }
 }

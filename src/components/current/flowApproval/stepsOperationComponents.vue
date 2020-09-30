@@ -1,5 +1,5 @@
 <template>
-  <div >
+  <div>
     <!--操作-->
     <el-steps :active="approvalProcessConstructionList.length"
               process-status="process"
@@ -83,7 +83,7 @@
 
         constructionAndEmployeeList: [], //单位和人员的集合
 
-        approvalProcessConstructionId: 1, //流程节点ID
+        approvalProcessConstructionId: 0, //流程节点ID
 
         approvalProcessConstructionList: [{}],//流程节点的集合
 
@@ -91,7 +91,7 @@
     },
     methods: {
       // 创建流程节点
-      changeConstructionAndEmployee(data,index) {
+      changeConstructionAndEmployee(data, index) {
 
         let construction = this.constructionAndEmployeeList.find(c => {
           return c.value === data[0]
@@ -163,24 +163,30 @@
           background: 'rgba(0, 0, 0, 0.7)'
         });
 
+        let id = 1;
+
 
         /*提交流程*/
         requestFlowCommit({
           url: 'commitConstructionAndEmployeeFlowList',
           method: "post",
-          data: this.approvalProcessConstructionList,
+          data: this.approvalProcessConstructionList.map(flow => {
+            //重置nodeId
+            flow.nodeId =  id++
+            return flow;
+          }),
           params: {
             fromId: this.$store.getters.getFormObject.fromId,
           }
         }).then(res => {
 
-          /*提交表单*/
-          this.$root.$children[0].$refs.fromComponents.submitForm();
+          if (JSON.parse(res.result)) {
+            /*提交表单*/
+            this.$root.$children[0].$refs.fromComponents.submitForm();
 
-        }).then(res => {
-
-          /*加载流程*/
-
+            /*加载文件*/
+            this.$root.$children[0].$refs.tabsComponents.$refs.uploadOperationComponents.init()
+          }
 
         }).catch(e => {
           console.log(e);
@@ -208,7 +214,7 @@
         }
       },
       //初始化
-      init(){
+      init() {
         requestConstructionAndEmployeeList({
           url: 'getConstructionAndEmployeeList',
           method: "get",
